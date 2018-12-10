@@ -1,0 +1,5 @@
+dependencies {
+	compile devOpsFileTree(dir: "dist/jars", include: ['*.jar'])
+	// https://mvnrepository.com/artifact/com.alibaba/fastjson
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.45'
+}

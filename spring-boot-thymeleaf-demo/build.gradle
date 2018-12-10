@@ -1,0 +1,19 @@
+description 'demo for spring-thymeleaf-starter project'
+group 'com.bokesoft.xialj.demo.spring.thymeleaf'
+version '1.0'
+
+//指定 devOpsDist(执行 clean、complie 直到 dist 的全部动作) 为默认的 task
+defaultTasks 'devOpsDist'
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+
+//指定打包发布的目录(包含子目录 `jars`、`srcs` 和 `libs`)
+distsDirName = "${projectDir}/dist"
+apply from: "devops.gradle"
+devOpsApply from: "deps.gradle"
+
+devOpsDefineExports (
+	include: [], exclude: ["*.jar"]
+)

@@ -1,0 +1,52 @@
+description 'demo for spring-session project'
+group 'com.bokesoft.xialj.demo.spring.session'
+version '1.0'
+
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+
+//与 SpringBoot 有关的定义
+//(注意: 除非明确引用了 Spring 的 jar 包, 否则使用的 Spring 版本只受 SPRING_BOOT_VERSION 控制, SPRING_VERSION 可能不一定起作用)
+buildscript {
+	ext {
+		SPRING_VERSION = '4.3.18.RELEASE'
+		SPRING_BOOT_VERSION = '1.5.15.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${SPRING_BOOT_VERSION}") 
+	}
+}
+apply plugin: 'org.springframework.boot'
+
+//指定 devOpsSpringBootDist(执行 clean、complie、build 直到 dist 的全部动作) 为默认的 task
+defaultTasks 'devOpsSpringBootDist'
+
+//定义整个 Yigo2-redist 项目结构所在的相对目录，视 gradle 项目所在位置的深度，可能包含数量不等的 ".."
+//指定打包发布的目录(包含子目录 `jars`、`srcs` 和 `libs`)
+distsDirName = "${projectDir}/dist"
+//从 `devops.gradle` 引用自定义的方法和任务
+apply from: "devops.gradle"
+//然后重新定义一个默认的用于 SpringBoot 的 task
+bootRepackage.mustRunAfter 'devOpsClean'    //FIXME: 必须这样才能让 bootRepackage 在 devOpsClean 后执行
+task devOpsSpringBootDist(dependsOn: [devOpsClean, bootRepackage, devOpsDistJar, devOpsDistSrcJar]) {
+	//执行从清除直到最终打包的完整过程
+}
+
+//引用当前模块的依赖定义, 建议当前模块依赖定义文件总是命名为 "deps.gradle"
+devOpsApply from: "deps.gradle"
+
+//可选: 定义需要复制到 ${distsDirName}/libs 目录下的依赖 jar 包(用于 plugin 运行时使用)
+/*
+devOpsDefineExports (
+	include: ["a*.jar", "c*.jar"],
+	exclude: ["cms*.jar"]
+)
+*/
+devOpsDefineExports (
+	include: [], exclude: ["*.jar"]
+)
